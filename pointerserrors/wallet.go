@@ -1,11 +1,11 @@
-package wallet
+package main
 
 import (
 	"errors"
 	"fmt"
 )
 
-type Bitcoin int
+type Bitcoin int 
 
 type Stringer interface {
 	String() string
@@ -27,14 +27,11 @@ func (w *Wallet) Balance() Bitcoin {
 	return w.balance
 }
 
-func (w *Wallet) BalanceX10() {
-	w.balance = w.balance * 10
-}
+var ErrInsufficientFunds = errors.New("cannot withdraw, insufficient funds")
 
 func (w *Wallet) Withdraw(amount Bitcoin) error {
-
 	if amount > w.balance {
-		return errors.New("oh no")
+		return ErrInsufficientFunds
 	}
 
 	w.balance -= amount
