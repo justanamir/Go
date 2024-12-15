@@ -1,27 +1,49 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
-func home(w http.ResponseWriter, r *http.Request) {
+// Display the home page.
+func home (w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Hello from Snippetbox"))
 }
 
+// Display a specific snippet.
 func snippetView (w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Display a specific snippet..."))
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || id < 1 {
+		http.NotFound(w, r)
+		return
+	}
+
+	msg := fmt.Sprintf("Display a specific snippet with ID %d...", id)
+	w.Write([]byte(msg))
 }
 
+// Display a form for creating a new snippet.
 func snippetCreate (w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Display a form for creating a new snippet"))
 }
 
+// Save a new snippet.
+func snippetCreatePost (w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Save a new snippet..."))
+}
+
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/{$}", home)
-	mux.HandleFunc("/snippet/view", snippetView)
-	mux.HandleFunc("/snippet/create", snippetCreate)
+	// Display the home page.
+	mux.HandleFunc("GET /{$}", home)
+	// Display a specific snippet.
+	mux.HandleFunc("GET /snippet/view/{id}", snippetView)
+	// Display a form for creating a new snippet.
+	mux.HandleFunc("GET /snippet/create", snippetCreate)
+	// Save a new snippet.
+	mux.HandleFunc("POST /snippet/create", snippetCreatePost)
 
 	log.Print("starting server on :4000")
 
