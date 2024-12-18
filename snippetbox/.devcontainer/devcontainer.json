@@ -1,0 +1,9 @@
+{
+    "name": "snippetbox",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "mysql": "latest"
+    },
+    "postCreateCommand": "sudo service mysql start"
+  }
+  
