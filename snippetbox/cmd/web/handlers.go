@@ -151,8 +151,8 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 }
 
 type userLoginForm struct {
-	Email string `form:"email"`
-	Password string `form:"password"`
+	Email               string `form:"email"`
+	Password            string `form:"password"`
 	validator.Validator `form:"-"`
 }
 
@@ -182,7 +182,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := app.users.Aunthenticate(form.Email, form.Password) 
+	id, err := app.users.Aunthenticate(form.Email, form.Password)
 	if err != nil {
 		if errors.Is(err, models.ErrInvalidCredentials) {
 			form.AddNonFieldError("Email or password is incorrect")
@@ -195,7 +195,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	
+
 	err = app.sessionManager.RenewToken(r.Context())
 	if err != nil {
 		app.serveError(w, r, err)
@@ -207,5 +207,15 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Logout the user...")
+	err := app.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		app.serveError(w, r, err)
+		return
+	}
+
+	app.sessionManager.Remove(r.Context(), "authenticatedUserID")
+
+	app.sessionManager.Put(r.Context(), "flash", "You,ve been logged out sucesfully!")
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
