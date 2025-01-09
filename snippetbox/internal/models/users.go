@@ -10,12 +10,18 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type UserModelInterface interface {
+	Insert(name, email, password string) error
+	Authenticate(email, password string) (int, error)
+	Exists(id int) (bool, error)
+}
+
 type User struct {
-	ID int
-	Name string
-	Email string
+	ID             int
+	Name           string
+	Email          string
 	HashedPassword []byte
-	Created time.Time
+	Created        time.Time
 }
 
 type UserModel struct {
@@ -40,11 +46,11 @@ func (m *UserModel) Insert(name, email, password string) error {
 		}
 		return err
 	}
-	
+
 	return nil
 }
 
-func (m *UserModel) Aunthenticate(email, password string) (int, error) {
+func (m *UserModel) Authenticate(email, password string) (int, error) {
 	var id int
 	var hashedPassword []byte
 
@@ -76,6 +82,6 @@ func (m *UserModel) Exists(id int) (bool, error) {
 
 	stmt := "SELECT EXISTS(SELECT true FROM users where id = ?)"
 
-	err := m.DB.QueryRow(stmt, id). Scan(&exists)
+	err := m.DB.QueryRow(stmt, id).Scan(&exists)
 	return exists, err
 }
